@@ -37,4 +37,4 @@ ENV PYTHONUNBUFFERED=1
 
 # Run the MCP server over standard input/output (stdio)
 # Updated to point to openfast_mcp.py instead of server.py
-ENTRYPOINT ["python", "/app/openfast_mcp.py"]
+ENTRYPOINT ["python", "/app/src/openfast_mooring_manager/openfast_mcp.py"]
