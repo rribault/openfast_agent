@@ -1,6 +1,8 @@
 [project]
 name = "openfast-mooring-manager"
 version = "0.1.0"
+description = "OpenFAST Mooring Manager MCP Server"
+requires-python = ">=3.12"
 dependencies = [
     "fastmcp",
     "openfast-toolbox @ git+https://github.com/OpenFAST/openfast_toolbox"
