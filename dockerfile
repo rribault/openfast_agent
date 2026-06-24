@@ -10,6 +10,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Install uv directly from the official binaries
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
+# --- ADDED: Extract the Docker CLI binary from the official Docker image ---
+COPY --from=docker:latest /usr/local/bin/docker /usr/local/bin/docker
+
 # Set the working directory inside the container
 WORKDIR /app
 
@@ -37,4 +40,4 @@ ENV PYTHONUNBUFFERED=1
 
 # Run the MCP server over standard input/output (stdio)
 # Updated to point to openfast_mcp.py instead of server.py
-ENTRYPOINT ["python", "/app/src/openfast_mooring_manager/openfast_mcp.py"]
+ENTRYPOINT ["python", "/app/openfast_mcp.py"]
