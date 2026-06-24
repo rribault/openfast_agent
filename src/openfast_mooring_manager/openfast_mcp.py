@@ -1,5 +1,6 @@
 import os
 import glob
+import subprocess
 from urllib.request import urlopen
 from fastmcp import FastMCP
 from openfast_toolbox.io import FASTInputFile
@@ -223,6 +224,45 @@ def modify_general_config_param(file_path: str, key: str, value: str) -> str:
         return f"Openfast_toolbox write pipeline failed: {str(e)}"
 
 
+@mcp.tool()
+def run_openfast_simulation(fst_path: str) -> str:
+    """
+    Executes an OpenFAST simulation using Docker. The tool automatically maps 
+    the file directory to the container's '/files' mount volume.
+    
+    Args:
+        fst_path (str): Absolute or relative path to the main .fst file on the host.
+    """
+    if not os.path.exists(fst_path):
+        return f"Error: OpenFAST file '{fst_path}' not found on host."
+    
+    # Resolve the absolute pathing to handle volume mounts correctly
+    abs_fst_path = os.path.abspath(fst_path)
+    host_dir = os.path.dirname(abs_fst_path)
+    fst_filename = os.path.basename(abs_fst_path)
+    
+    # Construct command targeting the fixed internal container directory: /files
+    command = [
+        "docker", "run", "--rm",
+        f"--volume={host_dir}:/files",
+        "nrel/openfast:latest",
+        "openfast", f"/files/{fst_filename}"
+    ]
+    
+    try:
+        # Run the container and grab execution pipeline feedback
+        result = subprocess.run(command, capture_output=True, text=True, check=True)
+        return f"=== OpenFAST Simulation Completed Successfully ===\n\n[STDOUT]\n{result.stdout}"
+    except subprocess.CalledProcessError as e:
+        return (
+            f"Error: OpenFAST execution exited with non-zero status code {e.returncode}.\n\n"
+            f"[STDOUT]\n{e.stdout}\n"
+            f"[STDERR]\n{e.stderr}"
+        )
+    except Exception as e:
+        return f"An unexpected error occurred while spinning up Docker: {str(e)}"
+
+
 # Define a Prompt template to initialize conversation design cleanly
 @mcp.prompt()
 def manage_mooring_workflow(fst_file_path: str = "") -> str:
@@ -230,7 +270,7 @@ def manage_mooring_workflow(fst_file_path: str = "") -> str:
     Sets up an engineering interaction context guiding the agent on model interrogation.
     """
     return f"""You are an offshore engineering assistant specialized in aero-hydro-elastic modeling via OpenFAST.
-Your workflow is to collaborate with the user to inspect their model configuration and modify mooring line traits.
+Your workflow is to collaborate with the user to inspect their model configuration, modify mooring line traits, and execute simulations.
 
 Current Context:
 Target Model File: {fst_file_path if fst_file_path else "Not provided yet"}
@@ -241,6 +281,7 @@ Instructions:
 3. Expose layout structures to the user using `read_mooring_file`.
 4. Suggest optimization options, line replacements, or specific segment modifications based on their criteria.
 5. Apply modifications accurately using `update_mooring_line_property` or `modify_general_config_param`.
+6. Once configuration tasks are locked in, offer to run the simulation via `run_openfast_simulation`.
 """
 
 if __name__ == "__main__":
