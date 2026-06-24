@@ -5,3 +5,7 @@ dependencies = [
     "fastmcp",
     "openfast-toolbox @ git+https://github.com/OpenFAST/openfast_toolbox"
 ]
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
