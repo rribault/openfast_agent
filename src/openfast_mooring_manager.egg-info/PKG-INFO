@@ -1,0 +1,5 @@
+Metadata-Version: 2.4
+Name: openfast-mooring-manager
+Version: 0.1.0
+Requires-Dist: fastmcp
+Requires-Dist: openfast-toolbox @ git+https://github.com/OpenFAST/openfast_toolbox

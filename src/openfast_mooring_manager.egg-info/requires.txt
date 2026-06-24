@@ -1,0 +1,2 @@
+fastmcp
+openfast-toolbox @ git+https://github.com/OpenFAST/openfast_toolbox
