@@ -1,0 +1,7 @@
+[project]
+name = "openfast-mooring-manager"
+version = "0.1.0"
+dependencies = [
+    "fastmcp",
+    "openfast-toolbox @ git+https://github.com/OpenFAST/openfast_toolbox"
+]
